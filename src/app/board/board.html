@@ -1,0 +1,33 @@
+<h2 class="player" *ngIf="gameActive === true">
+    Jogador: {{ currentPlayer === 1 ? 'Amarelo' : 'Vermelho' }}
+</h2>
+<div *ngIf="winner !== null" class="winnerMessage">
+    O jogador {{ winner === 1 ? 'Amarelo' : 'Vermelho' }} ganhou!
+</div>
+<div class="drawMessage" *ngIf="winner === null && gameOver">
+    Empate!
+</div>
+<div class="errorMessage" *ngIf="colFull">
+    Esta coluna está cheia!
+  </div>
+<div class="board">
+  <div class="column" 
+        *ngFor="let column of board;
+        let colIdx = index" 
+        (click)="play(colIdx)"
+        (mouseenter)="hoveredCol = colIdx"
+        (mouseleave)="hoveredCol = null">
+    <div 
+      class="cell preview" 
+      *ngIf="hoveredCol === colIdx && gameActive"
+      [ngClass]="{'yellow': currentPlayer === 1, 'red': currentPlayer === 2}">
+    </div>
+    <div 
+      class="cell" 
+      *ngFor="let cell of column"
+      [ngClass]="{'yellow': cell === 1, 'red': cell === 2}">
+    </div>
+  </div>
+</div>
+
+<button (click)="newGame()">New Game</button>
