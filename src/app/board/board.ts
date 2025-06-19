@@ -1,41 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core'; // Importar inject
 import { CommonModule } from '@angular/common';
+import { GameService, Game, Stats } from '../services/game.service'; // Importar o serviço e as interfaces
+import { switchMap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-board',
-  templateUrl: './board.html',
-  styleUrls: ['./board.css'],
-  standalone: true,
-  imports: [CommonModule]
 })
 export class Board {
-  rows = 6;
-  cols = 7;
-  board: number[][] = [];
-  currentPlayer = 1;
-  hoveredCol: number | null = null;
-  winner: number | null = null;
-  gameActive: boolean = false;
-  gameOver: boolean = false;
-  colFull: boolean = false;
+  // ... (as suas propriedades atuais)
+  private gameService = inject(GameService); // Injetar o serviço
 
-  constructor() {
-    this.resetBoard();
-    this.newGame();
-  }
+  // ... (resto do código)
 
-  resetBoard() {
-    this.board = Array.from({ length: this.cols }, () => Array(this.rows).fill(0));
-  }
-
+  // Modifique o método play para chamar a função que guarda o jogo
   play(colIdx: number) {
     if (!this.gameActive || this.winner !== null) return;
-
-    if (this.board[colIdx][0]) {
-      this.colFull = true;
-      return;
-    }
-    this.colFull = false;
+    
+    // (a sua lógica de jogada existente...)
 
     for (let row = this.rows - 1; row >= 0; row--) {
       if (this.board[colIdx][row] === 0) {
@@ -46,6 +26,7 @@ export class Board {
           this.winner = winner;
           this.gameActive = false;
           this.gameOver = true;
+          this.handleEndGame(winner); // Chamar a nova função
           return;
         }
 
@@ -53,6 +34,7 @@ export class Board {
           this.gameActive = false;
           this.gameOver = true;
           this.winner = null;
+          this.handleEndGame(null); // Chamar a nova função para empate
           return;
         }
 
@@ -60,68 +42,38 @@ export class Board {
         break;
       }
     }
-}
-
-newGame() {
-    this.resetBoard();
-    this.winner = null;
-    this.gameActive = true;
-    this.gameOver = false;
-    this.currentPlayer = Math.floor(Math.random() * 2) + 1;
   }
 
-checkWinner(): number | null {
+  handleEndGame(winner: number | null) {
+    // 1. Guardar o jogo
+    const gameToSave: Game = {
+      date: new Date().toISOString(),
+      game: {
+        board: this.board,
+        winner: winner,
+      }
+    };
 
-    for (let col = 0; col < this.cols; col++) {
-      for (let row = 0; row < this.rows; row++) {
-        if (this.board[col][row] !== 0) {
-          const player = this.board[col][row];
+    this.gameService.saveGame(gameToSave).subscribe({
+      next: (savedGame) => console.log('Jogo guardado:', savedGame),
+      error: (err) => console.error('Erro ao guardar jogo:', err)
+    });
 
-          // Check horizontal
-          if (col + 3 < this.cols &&
-              player === this.board[col + 1][row] &&
-              player === this.board[col + 2][row] &&
-              player === this.board[col + 3][row]) {
-            return player;
-          }
-
-          // Check vertical
-          if (row + 3 < this.rows &&
-              player === this.board[col][row + 1] &&
-              player === this.board[col][row + 2] &&
-              player === this.board[col][row + 3]) {
-            return player;
-          }
-
-          // Check diagonal /
-          if (col - 3 >= 0 && row + 3 < this.rows &&
-              player === this.board[col - 1][row + 1] &&
-              player === this.board[col - 2][row + 2] &&
-              player === this.board[col - 3][row + 3]) {
-            return player;
-          }
-
-          // Check diagonal \
-          if (col + 3 < this.cols && row + 3 < this.rows &&
-              player === this.board[col + 1][row + 1] &&
-              player === this.board[col + 2][row + 2] &&
-              player === this.board[col + 3][row + 3]) {
-            return player;
-          }
+    // 2. Atualizar as estatísticas
+    this.gameService.getStatistics().pipe(
+      switchMap((stats) => {
+        if (winner === 2) { // Vermelho
+          stats.red++;
+        } else if (winner === 1) { // Amarelo
+          stats.yellow++;
+        } else { // Empate
+          stats.draw++;
         }
-      }
-    }
-    return null;
+        return this.gameService.updateStatistics(stats);
+      })
+    ).subscribe({
+      next: (updatedStats) => console.log('Estatísticas atualizadas:', updatedStats),
+      error: (err) => console.error('Erro ao atualizar estatísticas:', err)
+    });
   }
-
-  checkDraw() {
-    for (let col = 0; col < this.cols; col++) {
-      if (this.board[col][0] === 0) {
-        this.winner = null;
-        return false;
-      }
-    }
-    return true;
-  }
-
 }

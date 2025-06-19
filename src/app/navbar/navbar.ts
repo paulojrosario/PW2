@@ -1,11 +1,13 @@
+import { getLocaleExtraDayPeriodRules } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router'; // Importar
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
+  standalone: true,
+  imports: [RouterLink], // Importar RouterLink
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
-})
-export class Navbar {
+  styleUrll: ['./navbar.css']
+})    
+export class Navbar {}
 
-}
