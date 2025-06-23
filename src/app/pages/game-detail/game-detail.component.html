@@ -1,0 +1,36 @@
+<div class="game-detail-container" *ngIf="game">
+  <div class="game-header">
+    <h1>Detalhes do Jogo</h1>
+    <button routerLink="/statistics" class="back-btn">← Voltar às Estatísticas</button>
+  </div>
+
+  <div class="game-info">
+    <div class="info-card">
+      <h2>Data do Jogo</h2>
+      <p>{{ game.date | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+    </div>
+    <div class="info-card">
+      <h2>Resultado</h2>
+      <p class="winner" [ngClass]="{'yellow-text': game.game.winner === 1, 'red-text': game.game.winner === 2}">
+        {{ getWinnerName(game.game.winner) }}
+      </p>
+    </div>
+  </div>
+
+  <div class="board-container">
+    <h2>Tabuleiro Final</h2>
+    <div class="board">
+      <div class="column" *ngFor="let column of game.game.board; let colIdx = index">
+        <div 
+          class="cell" 
+          *ngFor="let cell of column"
+          [ngClass]="getCellClass(cell)">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading" *ngIf="!game">
+  <p>Carregando jogo...</p>
+</div>

@@ -1,7 +1,7 @@
-// src/app/services/game.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface Game {
   id?: string;
@@ -9,6 +9,7 @@ export interface Game {
   game: {
     board: any[][];
     winner: number | null;
+    moves: number[]; // Adicionar esta linha
   };
 }
 
@@ -32,7 +33,17 @@ export class GameService {
   }
 
   getGames(): Observable<Game[]> {
-    return this.http.get<Game[]>(`${this.apiUrl}/games`);
+    // Ordena os jogos do mais recente para o mais antigo
+    return this.http.get<Game[]>(`${this.apiUrl}/games`).pipe(
+      map(games => games.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()))
+    );
+  }
+
+  // Novo método para ir buscar apenas o último jogo
+  getLastGame(): Observable<Game | undefined> {
+    return this.getGames().pipe(
+      map(games => games[0]) // O primeiro elemento é o mais recente
+    );
   }
 
   getStatistics(): Observable<Stats> {

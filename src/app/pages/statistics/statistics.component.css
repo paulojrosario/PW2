@@ -17,5 +17,6 @@
   align-items: center; cursor: pointer; transition: background-color 0.3s;
 }
 .history-item:hover { background-color: #4357A0; }
+.history-item.clickable:hover { background-color: #3B4EA0; transform: translateY(-2px); }
 .history-info .date { font-size: 0.9em; color: #ccc; }
 .history-info .winner { font-size: 1.1em; font-weight: bold; }

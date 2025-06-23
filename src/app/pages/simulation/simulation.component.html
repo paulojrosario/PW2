@@ -1,0 +1,62 @@
+<div class="simulation-container">
+  <div class="simulation-header">
+    <h1>Simulação do Último Jogo</h1>
+    <button routerLink="/statistics" class="back-btn">← Voltar às Estatísticas</button>
+  </div>
+
+  <div class="game-info" *ngIf="lastGame">
+    <div class="info-card">
+      <h2>Data do Jogo</h2>
+      <p>{{ lastGame.date | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+    </div>
+    <div class="info-card">
+      <h2>Resultado Final</h2>
+      <p class="winner" [ngClass]="{'yellow-text': lastGame.game.winner === 1, 'red-text': lastGame.game.winner === 2}">
+        {{ getWinnerName(lastGame.game.winner) }}
+      </p>
+    </div>
+    <div class="info-card">
+      <h2>Progresso</h2>
+      <p>{{ currentStep }} / {{ totalSteps }} movimentos</p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button 
+      *ngIf="!isPlaying" 
+      (click)="startSimulation()" 
+      class="control-btn start-btn"
+      [disabled]="!lastGame">
+      ▶️ Iniciar Simulação
+    </button>
+    <button 
+      *ngIf="isPlaying" 
+      (click)="stopSimulation()" 
+      class="control-btn stop-btn">
+      ⏹️ Parar Simulação
+    </button>
+    <button 
+      (click)="resetBoard()" 
+      class="control-btn reset-btn"
+      [disabled]="isPlaying">
+      🔄 Reiniciar
+    </button>
+  </div>
+
+  <div class="board-container" *ngIf="lastGame">
+    <h2>Tabuleiro da Simulação</h2>
+    <div class="board">
+      <div class="column" *ngFor="let column of currentBoard; let colIdx = index">
+        <div 
+          class="cell" 
+          *ngFor="let cell of column"
+          [ngClass]="getCellClass(cell)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-game" *ngIf="!lastGame">
+    <p>Nenhum jogo encontrado para simular.</p>
+  </div>
+</div>
